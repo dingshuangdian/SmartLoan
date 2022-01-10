@@ -15,23 +15,6 @@
         <item name="android:background">@color/white</item>
     </style>
 
-    <style name="CustomPopWindowStyle">
-        <item name="android:windowEnterAnimation">@anim/popwindow_anim_in</item>
-        <item name="android:windowExitAnimation">@anim/popwindow_anim_out</item>
-    </style>
-
-    <style name="CustomPopWindowStyleRight">
-        <item name="android:windowEnterAnimation">@anim/popwindow_anim_right_in</item>
-        <item name="android:windowExitAnimation">@anim/popwindow_anim_right_out</item>
-    </style>
-    <!--标题栏返回-->
-    <style name="TitleBack">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">35dp</item>
-        <item name="android:padding">10dp</item>
-        <item name="android:src">@mipmap/back_black</item>
-    </style>
-
     <!--标题栏字体样式-->
     <style name="TitleText">
         <item name="android:layout_width">wrap_content</item>
@@ -48,37 +31,7 @@
         <item name="android:background">#CCCCCC</item>
         <item name="android:layout_alignParentBottom">true</item>
     </style>
-    <!--全屏对话框 dialog-->
-    <style name="transparentBgDialog" parent="@android:style/Theme.Dialog">
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowBackground">@color/transparent</item>
-        <item name="android:backgroundDimEnabled">true</item>
-        <item name="android:background">@color/transparent</item>
-        <item name="android:windowNoTitle">true</item>
-    </style>
 
-    <style name="textview_style">
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_width">41dp</item>
-        <item name="android:background">@color/transparent</item>
-        <item name="android:gravity">center</item>
-        <item name="android:textColor">@color/code_color</item>
-        <item name="android:textSize">18sp</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="good_text_title_style">
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:background">@color/transparent</item>
-        <item name="android:gravity">center</item>
-        <item name="android:textColor">#808080</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:layout_marginTop">10dp</item>
-        <item name="android:layout_marginStart">20dp</item>
-    </style>
 
     <!--common tabs style-->
     <style name="common_radio_button">
@@ -101,19 +54,6 @@
         <attr name="mv_isRadiusHalfHeight" format="boolean" />
         <attr name="mv_isWidthHeightEqual" format="boolean" />
     </declare-styleable>
-
-    <!--底部弹出框动画-->
-    <!-- 对话框样式 -->
-
-    <style name="StyleProgressBarMini" parent="@android:style/Widget.ProgressBar.Horizontal">
-        <item name="android:maxHeight">5dip</item>
-        <item name="android:minHeight">5dip</item>
-        <item name="android:indeterminateOnly">false</item>
-        <item name="android:indeterminateDrawable">
-            @android:drawable/progress_indeterminate_horizontal
-        </item>
-        <item name="android:progressDrawable">@drawable/shape_progressbar_mini</item>
-    </style>
     <!-- 自定义仿IOS的AlertDialog的样式 -->
     <style name="Alert_Dialog_Style" parent="@android:style/Theme.Dialog">
         <item name="android:windowBackground">@android:color/transparent</item>

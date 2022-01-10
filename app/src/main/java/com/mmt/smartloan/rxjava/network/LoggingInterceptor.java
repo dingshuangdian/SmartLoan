@@ -2,8 +2,6 @@ package com.mmt.smartloan.rxjava.network;
 
 import androidx.annotation.NonNull;
 
-import com.dsl.league.manager.DslLogManager;
-
 import java.io.IOException;
 import java.text.MessageFormat;
 
@@ -42,7 +40,7 @@ public class LoggingInterceptor implements Interceptor {
 
         String logMsg = MessageFormat.format("{0}\n{1}\nrequest={2}\nresponse={3}", request.url(), request.headers().toString(), requestStr, responseStr);
         //String logMsg = MessageFormat.format("request={0}\n{1}\nresponse={2}", request.url(), request.headers().toString(), responseStr);
-        DslLogManager.api(logMsg);
+        LogManager.api(logMsg);
         if (onLoggingInterface != null) {
             onLoggingInterface.onRequest(request, response, responseStr);
         }

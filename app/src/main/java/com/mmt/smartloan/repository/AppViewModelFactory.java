@@ -1,6 +1,7 @@
 package com.mmt.smartloan.repository;
 
 import android.app.Activity;
+import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -39,7 +40,11 @@ public class AppViewModelFactory extends ViewModelProvider.NewInstanceFactory {
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         if (modelClass.isAssignableFrom(LoginModule.class)) {
-            return (T) new LoginModule(repositoryModule, activity);
+            try {
+                return (T) new LoginModule(repositoryModule, activity);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
 
         throw new IllegalArgumentException("Unknown ViewModel class: " + modelClass.getName());

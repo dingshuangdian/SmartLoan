@@ -1,8 +1,6 @@
 package com.mmt.smartloan.rxjava.network;
 
-import com.dsl.league.LeagueApplication;
-import com.dsl.league.utils.AndroidUtils;
-import com.dsl.league.utils.DslUserInfoUtils;
+import com.mmt.smartloan.utils.UserInfoUtils;
 
 import java.io.IOException;
 
@@ -25,24 +23,10 @@ public class MyInterceptor implements Interceptor {
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
         if (!(request.body() instanceof MultipartBody)) {  //不是Multipart的时候才添加token
-//            FormBody.Builder builder = new FormBody.Builder();
-//            builder.add("app_token", DslUserInfoUtils.getToken());
-//            Request.Builder requestBuilder = request.newBuilder();
-//            RequestBody requestBody = builder.build();
-//            String postBodyString = bodyToString(request.body());
-//            postBodyString += ((postBodyString.length() > 0) ? "&" : "") + bodyToString(requestBody);
-//            requestBuilder.addHeader("Content-Type", "application/json; charset=UTF-8");
-//            requestBuilder.post(RequestBody.create(MediaType.parse("application/x-www-form-urlencoded;charset=UTF-8"), postBodyString));
-//            request = requestBuilder.build();
-
             Request.Builder requestBuilder = request.newBuilder();
-            HttpUrl url = request.url().newBuilder()
-                    .setQueryParameter("app_token", DslUserInfoUtils.getToken())
-                    .setQueryParameter("devicesystem", "Android")
-                    .setQueryParameter("appversion", AndroidUtils.getVersionName(LeagueApplication.getConText()))
-                    .build();
+            requestBuilder.addHeader("Authorization", "Bearer" + UserInfoUtils.getToken());
             requestBuilder.addHeader("Content-Type", "application/json; charset=UTF-8");
-            request = requestBuilder.url(url).build();
+            request = requestBuilder.build();
         }
         return chain.proceed(request);
     }

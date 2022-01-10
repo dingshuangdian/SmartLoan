@@ -1,6 +1,6 @@
 package com.mmt.smartloan.rxjava.network;
 
-import com.dsl.league.bean.BaseResult;
+import com.mmt.smartloan.base.BaseResult;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;

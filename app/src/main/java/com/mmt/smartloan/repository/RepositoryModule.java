@@ -4,12 +4,9 @@ import androidx.annotation.NonNull;
 
 import com.mmt.smartloan.base.BaseInterface;
 import com.mmt.smartloan.base.BaseResult;
-
-import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
-import okhttp3.MultipartBody;
 
 /**
  * <p>版权©️所有：大参林医药集团<p>
@@ -18,10 +15,10 @@ import okhttp3.MultipartBody;
  */
 public class RepositoryModule implements BaseInterface {
     private volatile static RepositoryModule INSTANCE = null;
-    private BaseInterface dslInterface;
+    private BaseInterface baseInterface;
 
-    public RepositoryModule(@NonNull BaseInterface dslInterface) {
-        this.dslInterface = dslInterface;
+    public RepositoryModule(@NonNull BaseInterface baseInterface) {
+        this.baseInterface = baseInterface;
     }
 
     public static RepositoryModule getINSTANCE(BaseInterface dslInterface) {
@@ -36,8 +33,7 @@ public class RepositoryModule implements BaseInterface {
     }
 
     @Override
-    public Observable<BaseResult<Object>> sendSms(Map<String, Object> map) {
-        return dslInterface.sendSms(map);
+    public Observable<BaseResult<Object>> addActive(Map<String, Object> map) {
+        return baseInterface.addActive(map);
     }
-
 }
