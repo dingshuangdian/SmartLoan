@@ -13,7 +13,7 @@ public interface BaseInterface {
      * @param map
      * @return
      */
-    @POST("user/device/addActive")
-    Observable<BaseResult<Object>> addActive(@QueryMap Map<String, Object> map);
+    @POST("/user/device/addActive")
+    Observable<BaseResult<Object>> setActivePush(@QueryMap Map<String, Object> map);
 
 }

@@ -40,11 +40,9 @@ public class AppViewModelFactory extends ViewModelProvider.NewInstanceFactory {
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         if (modelClass.isAssignableFrom(LoginModule.class)) {
-            try {
-                return (T) new LoginModule(repositoryModule, activity);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
+
+            return (T) new LoginModule(repositoryModule, activity);
+
         }
 
         throw new IllegalArgumentException("Unknown ViewModel class: " + modelClass.getName());

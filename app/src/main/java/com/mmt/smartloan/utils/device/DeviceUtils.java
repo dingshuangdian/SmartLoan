@@ -585,7 +585,7 @@ public class DeviceUtils {
     private static String[] platforms = {
             "https://www.google.cn/",
             "http://pv.sohu.com/cityjson?ie=utf-8",
-            "http://ip.chinaz.com/getip.aspx"
+            "http://ip.chinaz.com/"
     };
 
     /**

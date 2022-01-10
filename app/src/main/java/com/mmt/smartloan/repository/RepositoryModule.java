@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 
 import com.mmt.smartloan.base.BaseInterface;
 import com.mmt.smartloan.base.BaseResult;
+
+import java.util.HashMap;
 import java.util.Map;
 
 import io.reactivex.Observable;
@@ -33,7 +35,7 @@ public class RepositoryModule implements BaseInterface {
     }
 
     @Override
-    public Observable<BaseResult<Object>> addActive(Map<String, Object> map) {
-        return baseInterface.addActive(map);
+    public Observable<BaseResult<Object>> setActivePush(Map<String, Object> map) {
+        return baseInterface.setActivePush(map);
     }
 }

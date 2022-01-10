@@ -28,20 +28,11 @@ import com.mmt.smartloan.utils.RxUtil;
 import java.util.concurrent.Executors;
 
 public class LoginModule extends BaseViewModel<RepositoryModule> {
-    private String adid;
     private String installReferce, installReferceClickTime, installStartTime;
 
-    public LoginModule(RepositoryModule model, Activity activity) throws RemoteException {
+    public LoginModule(RepositoryModule model, Activity activity){
         super(model, activity);
-        Executors.newSingleThreadExecutor().execute(() -> {
-            try {
-                adid = AdvertisingIdClient.getGoogleAdId(BaseApplication.getAppContext());
-                Log.e("LoginModule>>>>>>>", "adid:  " + adid);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        getInstallReferrer();
+
     }
 
     public void onClick(View view) {
@@ -53,8 +44,8 @@ public class LoginModule extends BaseViewModel<RepositoryModule> {
         }
     }
 
-    public void addActive() {
-        model.addActive(BaseParameter.addActive(adid, installReferce, installReferceClickTime, installStartTime))
+    public void addActive(String adid) {
+        model.setActivePush(BaseParameter.addActiveParams(adid, installReferce, installReferceClickTime, installStartTime))
                 .compose(RxUtil.getWrapper())
                 .as(RxLifecycleUtils.bindLifecycle((LifecycleOwner) activity))
                 .subscribe(new MyObserver<Object>() {
@@ -65,7 +56,7 @@ public class LoginModule extends BaseViewModel<RepositoryModule> {
                 });
     }
 
-    private void getInstallReferrer() {
+    public void getInstallReferrer(String adid) {
         try {
             final InstallReferrerClient installReferrerClient = InstallReferrerClient.newBuilder(BaseApplication.getAppContext()).build();
             installReferrerClient.startConnection(new InstallReferrerStateListener() {
@@ -81,9 +72,9 @@ public class LoginModule extends BaseViewModel<RepositoryModule> {
                                     installReferceClickTime = DateTimeUtil.getFormatTime(response.getReferrerClickTimestampSeconds() * 1000, "yyyy-MM-dd kk:mm:ss");
                                     installStartTime = DateTimeUtil.getFormatTime(response.getInstallBeginTimestampSeconds() * 1000, "yyyy-MM-dd kk:mm:ss");
                                     if (!TextUtils.isEmpty(installReferce)) {
-                                        addActive();
+                                        addActive(adid);
                                     }
-                                    installReferrerClient.endConnection();
+                                    //installReferrerClient.endConnection();
                                 } catch (Exception ex) {
                                     Log.e("InstallReferrerHelper", ex.toString());
                                 }
