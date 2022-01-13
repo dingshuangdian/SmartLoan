@@ -127,7 +127,7 @@ public class GlobalTransformer<T> implements ObservableTransformer<T, T>,
                         loadingDialog.show();
                     }
                 }).doFinally(() -> {
-                    if (showLoading) {
+                    if (loadingDialog != null&&loadingDialog.isShowing()) {
                         loadingDialog.dismiss();
                     }
                 }));
@@ -154,7 +154,7 @@ public class GlobalTransformer<T> implements ObservableTransformer<T, T>,
                     }
                 }).doFinally(() -> {
                     if (showLoading) {
-                       loadingDialog.dismiss();
+                        loadingDialog.dismiss();
                     }
                 }));
     }
@@ -172,7 +172,7 @@ public class GlobalTransformer<T> implements ObservableTransformer<T, T>,
                     }
                 }).doFinally(() -> {
                     if (showLoading) {
-                       loadingDialog.dismiss();
+                        loadingDialog.dismiss();
                     }
                 }));
     }

@@ -17,6 +17,10 @@ public class BaseTempPreferences extends BaseDiskCache {
     private static final String KEY_USER_ID = "KEY_USER_ID";//用户id
     private static final String KEY_ROLE_ID = "KEY_ROLE_ID";//角色id
     private static final String KEY_TOKEN = "KEY_TOKEN";//token
+    private static final String INSTALLREFERCE = "INSTALLREFERCE";//installreferce
+    private static final String GAID = "GAID";//gaid
+    private static final String UTMSOURCE = "UTMSOURCE";//utmSource
+    private static final String IPADDRESS = "IPADDRESS";//IPADDRESS
 
     public BaseTempPreferences() {
         super(BaseTempPreferences.class.getSimpleName(), 1);
@@ -30,11 +34,44 @@ public class BaseTempPreferences extends BaseDiskCache {
         return getString(KEY_TOKEN, "");
     }
 
+    public void setUtmSource(String utmSource) {
+        put(UTMSOURCE, utmSource);
+    }
+
+    public void setIpaddress(String ipAddress) {
+        put(IPADDRESS, ipAddress);
+    }
+
+    public String getIpaddress() {
+        return getString(IPADDRESS, "");
+    }
+
+    public String getUtmSource() {
+        return getString(UTMSOURCE, "");
+    }
+
+    public void setINSTALLREFERCE(String installreferce) {
+        put(INSTALLREFERCE, installreferce);
+    }
+
+    public String getINSTALLREFERCE() {
+        return getString(INSTALLREFERCE, "");
+    }
+
+    public void setGaid(String gaid) {
+        put(GAID, gaid);
+    }
+
+    public String getGaid() {
+        return getString(GAID, "");
+    }
+
     public void setUserId(String userId) {
         put(KEY_USER_ID, userId);
         //执行完后运行用户缓存初始化
         BaseCacheManager.initUserPreferences(userId);
     }
+
     public String getUserId() {
         return getString(KEY_USER_ID, "");
     }

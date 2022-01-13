@@ -4,11 +4,11 @@ import com.mmt.smartloan.utils.DebugUtils;
 
 public class AddressConfig {
     //public static final String API_URL_PRODUCE = "http://alliance-test.dslbuy.com";
-    public static final String API_URL_TEST = "http://8.134.38.88:3003/api";
-    public static final String API_URL_PRODUCE = "http://8.134.38.88:3003/api";
+    public static final String API_URL_TEST = "http://8.134.38.88:3003/api/";
+    public static final String API_URL_PRODUCE = "http://8.134.38.88:3003/api/";
 
-    public static final String WEB_URL_TEST = "";
-    public static final String WEB_URL_PRODUCE = "";
+    public static final String WEB_URL_TEST = "http://8.134.38.88:3003/";
+    public static final String WEB_URL_PRODUCE = "http://8.134.38.88:3003/";
 
 
     //web页面

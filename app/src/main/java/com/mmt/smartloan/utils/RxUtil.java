@@ -71,7 +71,7 @@ public class RxUtil {
                     //转为error交给下游
                     if (t instanceof BaseResult) {
                         BaseResult gResult = (BaseResult) t;
-                        switch (gResult.getStatus()) {
+                        switch (gResult.getCode()) {
                             case NetworkCode.ERROR_SUCCESS://请求成功
                                 break;
                             case NetworkCode.ERROR_UNLOGIN://未登录 or 被t出（token被销毁）
@@ -80,7 +80,7 @@ public class RxUtil {
                                 break;
                             default:
                                 if (showErrorTips) {
-                                    ToastUtils.showToast(gResult.getMessage());
+                                    ToastUtils.showToast(gResult.getMsg());
                                 }
                                 break;
                         }

@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">SmartLoan</string>
+    <string name="by_web_string_loading">加载中…</string>
+    <string name="by_web_string_click_load">点击重新加载</string>
+    <string name="action_share">分享</string>
 </resources>

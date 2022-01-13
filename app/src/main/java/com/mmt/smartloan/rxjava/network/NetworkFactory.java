@@ -1,6 +1,7 @@
 package com.mmt.smartloan.rxjava.network;
 import com.mmt.smartloan.base.AddressConfig;
 import com.mmt.smartloan.rxjava.fastjson.FastJsonConverterFactory;
+import com.mmt.smartloan.utils.LogUtils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -26,6 +27,7 @@ public class NetworkFactory {
                     .build();
         } catch (Exception e) {
             e.printStackTrace();
+            LogUtils.e(e.toString());
         }
         return null;
     }

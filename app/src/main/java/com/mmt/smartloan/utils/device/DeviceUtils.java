@@ -22,6 +22,7 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.os.SystemClock;
 import android.provider.Settings;
+import android.provider.Settings.Secure;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -54,6 +55,7 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import static android.content.Context.WIFI_SERVICE;
+import static android.provider.Settings.Secure.*;
 
 //import com.happy.dce.device.SimCardInfo;
 
@@ -95,7 +97,7 @@ public class DeviceUtils {
 
     public static String getAndroidId(Context context) {
         try {
-            return Settings.System.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+            return getString(context.getContentResolver(), ANDROID_ID);
 
         } catch (Exception e) {
 
@@ -137,7 +139,7 @@ public class DeviceUtils {
      * 获取是否开启USB调试
      */
     public static boolean isOpenUSBDebug(Context context) {
-        return (Settings.Secure.getInt(context.getContentResolver(), Settings.Secure.ADB_ENABLED, 0) > 0);
+        return (getInt(context.getContentResolver(), ADB_ENABLED, 0) > 0);
     }
 
     /**

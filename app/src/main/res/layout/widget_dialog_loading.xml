@@ -15,7 +15,7 @@
         android:indeterminate="true"
         android:indeterminateDrawable="@drawable/bg_progressbar_loading" />
 
-    <com.dsl.league.ui.view.RoundProgressBar
+    <com.mmt.smartloan.view.RoundProgressBar
         android:id="@+id/round_progress_bar"
         android:layout_width="30dp"
         android:layout_height="30dp"

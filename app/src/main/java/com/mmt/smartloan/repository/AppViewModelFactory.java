@@ -1,7 +1,6 @@
 package com.mmt.smartloan.repository;
 
 import android.app.Activity;
-import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -9,6 +8,8 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.mmt.smartloan.module.LoginModule;
+import com.mmt.smartloan.module.VerifyModule;
+import com.mmt.smartloan.module.WebViewModule;
 
 public class AppViewModelFactory extends ViewModelProvider.NewInstanceFactory {
 
@@ -42,6 +43,16 @@ public class AppViewModelFactory extends ViewModelProvider.NewInstanceFactory {
         if (modelClass.isAssignableFrom(LoginModule.class)) {
 
             return (T) new LoginModule(repositoryModule, activity);
+
+        }
+        if (modelClass.isAssignableFrom(VerifyModule.class)) {
+
+            return (T) new VerifyModule(repositoryModule, activity);
+
+        }
+        if (modelClass.isAssignableFrom(WebViewModule.class)) {
+
+            return (T) new WebViewModule(repositoryModule, activity);
 
         }
 

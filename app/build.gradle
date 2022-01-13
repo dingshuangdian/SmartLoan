@@ -1,15 +1,18 @@
 plugins {
     id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-android-extensions'
+    id 'kotlin-kapt'
 }
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion "28.0.3"
+    compileSdkVersion 30
+    buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "com.mmt.smartloan"
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
 
@@ -17,7 +20,11 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -54,12 +61,17 @@ dependencies {
     implementation 'com.orhanobut:logger:2.2.0'
     implementation 'com.gyf.immersionbar:immersionbar:3.0.0'
     implementation 'com.gyf.immersionbar:immersionbar-components:3.0.0'
-    implementation 'com.google.android.gms:play-services-gcm:15.0.1'
     implementation 'com.android.installreferrer:installreferrer:1.0'
-    implementation 'com.google.android.gms:play-services-analytics:16.0.3'
-    implementation 'com.google.android.gms:play-services-auth:16.0.0'
     implementation 'pub.devrel:easypermissions:3.0.0'
     implementation 'com.uber.autodispose:autodispose-lifecycle:1.4.0'
     implementation 'com.uber.autodispose:autodispose-android:1.4.0'
     implementation 'com.uber.autodispose:autodispose-android-archcomponents:1.4.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.72"
+    implementation 'org.greenrobot:eventbus:3.2.0'
+    implementation 'com.appsflyer:af-android-sdk:6.0.0'
+    implementation 'com.google.android.gms:play-services-ads:19.6.0'
+    implementation 'com.google.android.gms:play-services-location:17.1.0'
+    implementation 'com.google.android.gms:play-services-basement:17.4.0'
+    implementation "androidx.exifinterface:exifinterface:1.3.1"
+    api fileTree(include: ['*.aar'], dir: 'libs')
 }

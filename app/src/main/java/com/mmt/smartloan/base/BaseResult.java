@@ -3,29 +3,30 @@ package com.mmt.smartloan.base;
 import java.io.Serializable;
 
 public class BaseResult<T> implements Serializable {
-    protected int status;
-    protected String message;
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    protected int code;
+    protected String msg;
     protected T data;
 
     public boolean isSuccess() {
-        return status == 200;
+        return code == 0;
     }
 
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
 
     public T getData() {
         return data;
@@ -35,13 +36,5 @@ public class BaseResult<T> implements Serializable {
         this.data = data;
     }
 
-    @Override
-    public String toString() {
-        return "BaseResponse{" +
-                "status=" + status +
-                ", message='" + message + '\'' +
-                ", data=" + data +
-                '}';
-    }
 
 }

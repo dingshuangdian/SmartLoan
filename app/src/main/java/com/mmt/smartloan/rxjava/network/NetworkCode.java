@@ -9,8 +9,8 @@ import java.util.Map;
  * <p>创建时间：2020/6/4<p>
  */
 public class NetworkCode {
-    public static final int ERROR_SUCCESS = 200;
-    public static final int ERROR_UNLOGIN = 300;
+    public static final int ERROR_SUCCESS = 0;
+    public static final int ERROR_UNLOGIN = 1;
     private static final Map<String, String> messages = new HashMap<>();
 
     static {

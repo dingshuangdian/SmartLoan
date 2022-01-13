@@ -1,6 +1,13 @@
 package com.mmt.smartloan.rxjava.network;
 
+import android.text.TextUtils;
+
+import com.google.gson.Gson;
+import com.mmt.smartloan.BuildConfig;
+import com.mmt.smartloan.base.BaseApplication;
+import com.mmt.smartloan.utils.LogUtils;
 import com.mmt.smartloan.utils.UserInfoUtils;
+import com.mmt.smartloan.utils.device.DeviceUtils;
 
 import java.io.IOException;
 
@@ -22,10 +29,17 @@ public class MyInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        if (!(request.body() instanceof MultipartBody)) {  //不是Multipart的时候才添加token
+        HttpUrl httpUrl = request.url();
+        if (!httpUrl.url().getPath().contains("login")) {
             Request.Builder requestBuilder = request.newBuilder();
-            requestBuilder.addHeader("Authorization", "Bearer" + UserInfoUtils.getToken());
+            if (!TextUtils.isEmpty(UserInfoUtils.getToken()) && !httpUrl.url().getPath().contains("register")) {
+                requestBuilder.addHeader("Authorization", "Bearer" + UserInfoUtils.getToken());
+            }
             requestBuilder.addHeader("Content-Type", "application/json; charset=UTF-8");
+            requestBuilder.addHeader("packageName", BuildConfig.APPLICATION_ID);
+            requestBuilder.addHeader("appName", DeviceUtils.getAppName(BaseApplication.getAppContext()));
+            requestBuilder.addHeader("lang", "es");
+            requestBuilder.addHeader("afid", "afid");
             request = requestBuilder.build();
         }
         return chain.proceed(request);

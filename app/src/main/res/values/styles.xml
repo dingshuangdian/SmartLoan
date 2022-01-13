@@ -5,7 +5,13 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/white</item>
         <item name="colorPrimaryDark">@color/white</item>
-        <item name="colorAccent">@color/white</item>
+        <item name="colorAccent">#AD2648</item>
+    </style>
+    <style name="WebViewTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
     </style>
     <!-- Loading Dialog Style -->
     <!--标题栏样式-->
@@ -14,7 +20,13 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@color/white</item>
     </style>
-
+    <!--标题栏返回-->
+    <style name="TitleBack">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">35dp</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:src">@mipmap/back_black</item>
+    </style>
     <!--标题栏字体样式-->
     <style name="TitleText">
         <item name="android:layout_width">wrap_content</item>
