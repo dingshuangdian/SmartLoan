@@ -6,23 +6,38 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
-import android.os.Build;
+import android.os.Environment;
+import android.os.Parcelable;
+import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import com.mmt.smartloan.R;
+import com.mmt.smartloan.base.BaseApplication;
+import com.mmt.smartloan.utils.BitmapUtils;
+import com.mmt.smartloan.utils.FileUtils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.util.Calendar;
+import java.util.Locale;
 
 
 /**
@@ -31,7 +46,7 @@ import java.lang.ref.WeakReference;
  * - 上传图片(兼容)
  */
 public class ByWebChromeClient extends WebChromeClient {
-
+    private Uri imageUri;
     private WeakReference<Activity> mActivityWeakReference = null;
     private ByWebView mByWebView;
     private ValueCallback<Uri> mUploadMessage;
@@ -192,7 +207,9 @@ public class ByWebChromeClient extends WebChromeClient {
     // For Android > 5.0
     @Override
     public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> uploadMsg, FileChooserParams fileChooserParams) {
-        openFileChooserImplForAndroid5(uploadMsg);
+        //openFileChooserImplForAndroid5(uploadMsg);
+        Activity mActivity = this.mActivityWeakReference.get();
+        takePhoto(uploadMsg);
         return true;
     }
 
@@ -244,11 +261,31 @@ public class ByWebChromeClient extends WebChromeClient {
         }
         Uri result = (intent == null || resultCode != Activity.RESULT_OK) ? null : intent.getData();
         if (result != null) {
-            mUploadMessageForAndroid5.onReceiveValue(new Uri[]{result});
-        } else {
-            mUploadMessageForAndroid5.onReceiveValue(new Uri[]{});
+            mUploadMessageForAndroid5.onReceiveValue(new Uri[]{Uri.fromFile(BitmapUtils.compressImage(FileUtils.getFilePathByUri(BaseApplication.getAppContext(), result), 1080, 1920))});
+        } else if (imageUri != null) {
+            mUploadMessageForAndroid5.onReceiveValue(new Uri[]{Uri.fromFile(BitmapUtils.compressImage(FileUtils.getFilePathByUri(BaseApplication.getAppContext(), imageUri), 1080, 1920))});
         }
         mUploadMessageForAndroid5 = null;
+    }
+
+    private void takePhoto(ValueCallback<Uri[]> uploadMsg) {
+        Activity mActivity = this.mActivityWeakReference.get();
+        String filePath = Environment.getExternalStorageDirectory() + File.separator
+                + Environment.DIRECTORY_PICTURES + File.separator;
+        String fileName = "IMG_" + DateFormat.format("yyyyMMdd_hhmmss", Calendar.getInstance(Locale.CHINA)) + ".jpg";
+        imageUri = Uri.fromFile(new File(filePath + fileName));
+        mUploadMessageForAndroid5 = uploadMsg;
+
+        Intent captureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        captureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+
+        Intent Photo = new Intent(Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+        Intent chooserIntent = Intent.createChooser(Photo, "");
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Parcelable[]{captureIntent});
+
+        mActivity.startActivityForResult(chooserIntent, RESULT_CODE_FILE_CHOOSER_FOR_ANDROID_5);
     }
 
     /**
@@ -260,14 +297,6 @@ public class ByWebChromeClient extends WebChromeClient {
         } else if (requestCode == RESULT_CODE_FILE_CHOOSER_FOR_ANDROID_5) {
             uploadMessageForAndroid5(intent, resultCode);
         }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    @Override
-    public void onPermissionRequest(PermissionRequest request) {
-        super.onPermissionRequest(request);
-        // 部分页面可能崩溃
-//        request.grant(request.getResources());
     }
 
     ByFullscreenHolder getVideoFullView() {
@@ -283,4 +312,6 @@ public class ByWebChromeClient extends WebChromeClient {
             return super.getDefaultVideoPoster();
         }
     }
+
+
 }

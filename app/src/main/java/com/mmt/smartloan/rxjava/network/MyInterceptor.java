@@ -32,7 +32,7 @@ public class MyInterceptor implements Interceptor {
         HttpUrl httpUrl = request.url();
         if (!httpUrl.url().getPath().contains("login")) {
             Request.Builder requestBuilder = request.newBuilder();
-            if (!TextUtils.isEmpty(UserInfoUtils.getToken()) && !httpUrl.url().getPath().contains("register")) {
+            if (!TextUtils.isEmpty(UserInfoUtils.getToken()) && !httpUrl.url().getPath().contains("register")&&!httpUrl.url().getPath().contains("getVerifyCode")) {
                 requestBuilder.addHeader("Authorization", "Bearer" + UserInfoUtils.getToken());
             }
             requestBuilder.addHeader("Content-Type", "application/json; charset=UTF-8");

@@ -18,6 +18,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.util.HashMap;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -49,8 +50,8 @@ public class WebViewModule extends BaseViewModel<RepositoryModule> {
 
     private void up6zip(RequestBody paramMd5, RequestBody paramOrderNo, MultipartBody.Part filePart, boolean isSubmit, int num) {
         int n = num + 1;
-        model.zip6in1(paramMd5, paramOrderNo, filePart).compose(RxUtil.getWrapperWithLoading(activity))
-                .as(RxLifecycleUtils.bindLifecycle((LifecycleOwner) activity))
+        model.zip6in1(paramMd5, paramOrderNo, filePart).compose(RxUtil.getWrapper())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new MyObserver<Object>() {
                     @Override
                     public void onResultSuccess(Object o) {

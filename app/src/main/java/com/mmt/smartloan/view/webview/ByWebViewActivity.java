@@ -45,13 +45,17 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import ai.advance.liveness.lib.GuardianLivenessDetectionSDK;
+import ai.advance.liveness.lib.LivenessResult;
+import ai.advance.liveness.sdk.activity.LivenessActivity;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, WebViewModule> {
     public final int PHONE_REQUEST_PERMISSION = 8848;
+    public static final int REQUEST_CODE_LIVENESS = 8847;
     public final int PICK_CONTACT = 7747;
 
-    String[] permsPhone = {Manifest.permission.READ_PHONE_STATE};
+    String[] permsPhone = {Manifest.permission.READ_PHONE_STATE, Manifest.permission.CAMERA};
     // 网页链接
     private int mState;
     private String mUrl, phoneName, phoneNumber;
@@ -203,9 +207,19 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-        //byWebView.handleFileChooser(requestCode, resultCode, intent);
+
         if (requestCode == PICK_CONTACT) {
             getContacts(intent);
+        } else if (requestCode == REQUEST_CODE_LIVENESS) {
+            if (LivenessResult.isSuccess()) {// 活体检测成功
+                String livenessId = LivenessResult.getLivenessId();// 本次活体id
+                Bitmap livenessBitmap = LivenessResult.getLivenessBitmap();// 本次活体图片
+            } else {// 活体检测失败
+                String errorCode = LivenessResult.getErrorCode();// 失败错误码
+                String errorMsg = LivenessResult.getErrorMsg();// 失败原因
+            }
+        } else {
+            byWebView.handleFileChooser(requestCode, resultCode, intent);
         }
 
     }
@@ -406,9 +420,23 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
 
 
                     }
+                } else if (jsonObject.getString("action").equals("getAccuauthSDK")) {
+
+                    GuardianLivenessDetectionSDK.letSDKHandleCameraPermission();
+                    if (GuardianLivenessDetectionSDK.isSDKHandleCameraPermission()) {
+                        Intent intent = new Intent(ByWebViewActivity.this, LivenessActivity.class);
+                        startActivityForResult(intent, REQUEST_CODE_LIVENESS);
+                    }
+
+                    byWebView.getWebView().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            byWebView.loadUrl("javascript:" + "webViewFaceImg" + "(" + data.toString() + ")");
+
+                        }
+                    });
+
                 }
-
-
             } catch (JSONException e) {
                 e.printStackTrace();
             }
