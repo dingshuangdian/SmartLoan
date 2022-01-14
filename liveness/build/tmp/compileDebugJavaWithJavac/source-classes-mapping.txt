@@ -1,0 +1,13 @@
+ai/advance/liveness/sdk/fragment/LivenessFragment.java
+ ai.advance.liveness.sdk.fragment.LivenessFragment
+ ai.advance.liveness.sdk.fragment.LivenessFragment$1
+ ai.advance.liveness.sdk.fragment.LivenessFragment$2
+ ai.advance.liveness.sdk.fragment.LivenessFragment$3
+ ai.advance.liveness.sdk.fragment.LivenessFragment$4
+ ai.advance.liveness.sdk.fragment.LivenessFragment$5
+ai/advance/liveness/sdk/BuildConfig.java
+ ai.advance.liveness.sdk.BuildConfig
+ai/advance/liveness/sdk/activity/LivenessActivity.java
+ ai.advance.liveness.sdk.activity.LivenessActivity
+ ai.advance.liveness.sdk.activity.LivenessActivity$1
+ ai.advance.liveness.sdk.activity.LivenessActivity$2
