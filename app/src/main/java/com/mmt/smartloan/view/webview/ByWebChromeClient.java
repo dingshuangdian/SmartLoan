@@ -1,5 +1,6 @@
 package com.mmt.smartloan.view.webview;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -38,6 +39,9 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
 import java.util.Locale;
+
+import ai.advance.liveness.lib.GuardianLivenessDetectionSDK;
+import pub.devrel.easypermissions.EasyPermissions;
 
 
 /**
@@ -208,8 +212,9 @@ public class ByWebChromeClient extends WebChromeClient {
     @Override
     public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> uploadMsg, FileChooserParams fileChooserParams) {
         //openFileChooserImplForAndroid5(uploadMsg);
-        Activity mActivity = this.mActivityWeakReference.get();
         takePhoto(uploadMsg);
+
+
         return true;
     }
 

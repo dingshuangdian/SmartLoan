@@ -34,6 +34,7 @@ import com.mmt.smartloan.databinding.ActivityByWebviewBinding;
 import com.mmt.smartloan.event.EventCommand;
 import com.mmt.smartloan.module.WebViewModule;
 import com.mmt.smartloan.repository.AppViewModelFactory;
+import com.mmt.smartloan.utils.BitmapUtils;
 import com.mmt.smartloan.utils.LogUtils;
 import com.mmt.smartloan.utils.device.DeviceUtils;
 
@@ -52,10 +53,14 @@ import pub.devrel.easypermissions.EasyPermissions;
 
 public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, WebViewModule> {
     public final int PHONE_REQUEST_PERMISSION = 8848;
+    public final int CAMERA_REQUEST_PERMISSION = 8846;
     public static final int REQUEST_CODE_LIVENESS = 8847;
     public final int PICK_CONTACT = 7747;
+    private JSONObject jsonObject;
+    private JSONObject data;
+    private String[] permsPhone = {Manifest.permission.READ_PHONE_STATE, Manifest.permission.CAMERA};
 
-    String[] permsPhone = {Manifest.permission.READ_PHONE_STATE, Manifest.permission.CAMERA};
+
     // 网页链接
     private int mState;
     private String mUrl, phoneName, phoneNumber;
@@ -214,10 +219,35 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
             if (LivenessResult.isSuccess()) {// 活体检测成功
                 String livenessId = LivenessResult.getLivenessId();// 本次活体id
                 Bitmap livenessBitmap = LivenessResult.getLivenessBitmap();// 本次活体图片
+                JSONObject value = new JSONObject();
+                try {
+                    value.put("livenessId", livenessId);
+                    value.put("file", BitmapUtils.bitmapToBase64(livenessBitmap));
+                    data.put("result", "ok");
+                    data.put("data", value);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
             } else {// 活体检测失败
                 String errorCode = LivenessResult.getErrorCode();// 失败错误码
                 String errorMsg = LivenessResult.getErrorMsg();// 失败原因
+                JSONObject value = new JSONObject();
+                try {
+                    value.put("msg", errorMsg);
+                    data.put("result", "fail");
+                    data.put("data", value);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
+            byWebView.getWebView().post(new Runnable() {
+                @Override
+                public void run() {
+                    byWebView.loadUrl("javascript:" + "webViewFaceImg" + "(" + data.toString() + ")");
+
+                }
+            });
         } else {
             byWebView.handleFileChooser(requestCode, resultCode, intent);
         }
@@ -320,8 +350,8 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
         public void postMessage(String jsonString) {
             LogUtils.e("h5Json>>>>>", jsonString);
             try {
-                JSONObject jsonObject = new JSONObject(jsonString);
-                JSONObject data = new JSONObject();
+                jsonObject = new JSONObject(jsonString);
+                data = new JSONObject();
                 data.put("action", jsonObject.getString("action"));
                 data.put("id", jsonObject.getString("id"));
                 data.put("msg", "");
@@ -422,19 +452,9 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
                     }
                 } else if (jsonObject.getString("action").equals("getAccuauthSDK")) {
 
-                    GuardianLivenessDetectionSDK.letSDKHandleCameraPermission();
-                    if (GuardianLivenessDetectionSDK.isSDKHandleCameraPermission()) {
-                        Intent intent = new Intent(ByWebViewActivity.this, LivenessActivity.class);
-                        startActivityForResult(intent, REQUEST_CODE_LIVENESS);
-                    }
+                    Intent intent = new Intent(ByWebViewActivity.this, LivenessActivity.class);
+                    startActivityForResult(intent, REQUEST_CODE_LIVENESS);
 
-                    byWebView.getWebView().post(new Runnable() {
-                        @Override
-                        public void run() {
-                            byWebView.loadUrl("javascript:" + "webViewFaceImg" + "(" + data.toString() + ")");
-
-                        }
-                    });
 
                 }
             } catch (JSONException e) {
