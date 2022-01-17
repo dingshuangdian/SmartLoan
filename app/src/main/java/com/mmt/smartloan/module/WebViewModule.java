@@ -4,6 +4,9 @@ import android.app.Activity;
 
 import androidx.lifecycle.LifecycleOwner;
 
+import com.mmt.smartloan.base.ActivityStackManager;
+import com.mmt.smartloan.base.AddressConfig;
+import com.mmt.smartloan.base.BaseParameter;
 import com.mmt.smartloan.base.BaseViewModel;
 import com.mmt.smartloan.bean.RegisterAndLoginBean;
 import com.mmt.smartloan.cache.BaseCacheManager;
@@ -68,6 +71,15 @@ public class WebViewModule extends BaseViewModel<RepositoryModule> {
                                 webViewActivity.timeManager.toJsResult(false);
                             }
                         }
+                    }
+                });
+    }
+    public void logEventByLocal() {
+        model.postLogEvent(BaseParameter.postEventLog())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new MyObserver<RegisterAndLoginBean>() {
+                    @Override
+                    public void onResultSuccess(RegisterAndLoginBean o) {
                     }
                 });
     }

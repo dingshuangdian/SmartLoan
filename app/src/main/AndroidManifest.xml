@@ -75,7 +75,16 @@
             android:name="com.google.android.gms.ads.AD_MANAGER_APP"
             android:value="true"
             ></meta-data>
-
+        <!--   7.0以上拍照专用     -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.mmt.smartloan.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
     </application>
 

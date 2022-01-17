@@ -1,5 +1,6 @@
 package com.mmt.smartloan.base;
 
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.View;
 import androidx.annotation.Nullable;
@@ -71,6 +72,14 @@ public abstract class BaseActivity<V extends ViewDataBinding, VM extends BaseVie
         ActivityStackManager.getInstance().removeActivity(this);
 
 
+    }
+
+    @Override
+    protected void onResume() {
+        if(getRequestedOrientation()!= ActivityInfo.SCREEN_ORIENTATION_PORTRAIT){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+        super.onResume();
     }
 
     public void backToPreActivity(View view) {

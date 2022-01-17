@@ -70,8 +70,8 @@ public class VerifyActivity extends BaseActivity<VerifyLayoutBinding, VerifyModu
             public void onClick(View widget) {
                 try {
                     Intent intent = new Intent(VerifyActivity.this, ShowWebActivity.class);
-                    intent.putExtra(ShowWebActivity.KEY_URL, AddressConfig.WEB_URL + "/#/provicy");
-                    intent.putExtra(ShowWebActivity.KEY_TITLE, "Términos de Servicio");
+                    intent.putExtra(ShowWebActivity.KEY_URL, AddressConfig.WEB_URL + "/#/termsCondition");
+                    intent.putExtra(ShowWebActivity.KEY_TITLE, "");
                     startActivity(intent);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -84,8 +84,8 @@ public class VerifyActivity extends BaseActivity<VerifyLayoutBinding, VerifyModu
             public void onClick(View widget) {
                 try {
                     Intent intent = new Intent(VerifyActivity.this, ShowWebActivity.class);
-                    intent.putExtra(ShowWebActivity.KEY_URL, AddressConfig.WEB_URL + "/#/termsCondition");
-                    intent.putExtra(ShowWebActivity.KEY_TITLE, "Política de privacidad");
+                    intent.putExtra(ShowWebActivity.KEY_URL, AddressConfig.WEB_URL + "/#/provicy");
+                    intent.putExtra(ShowWebActivity.KEY_TITLE, "");
                     startActivity(intent);
                 } catch (Exception e) {
                     e.printStackTrace();

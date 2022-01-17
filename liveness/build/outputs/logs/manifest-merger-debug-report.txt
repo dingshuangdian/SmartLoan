@@ -1,41 +1,41 @@
 -- Merging decision tree log ---
 manifest
-ADDED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml:1:1-14:12
-INJECTED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml:1:1-14:12
-INJECTED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml:1:1-14:12
+ADDED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml:1:1-14:12
+INJECTED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml:1:1-14:12
+INJECTED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml:1:1-14:12
 	package
-		ADDED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml:2:5-38
-		INJECTED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml
-		INJECTED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml
+		ADDED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml:2:5-38
+		INJECTED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml
+		INJECTED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml
 	xmlns:android
-		ADDED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml:1:11-69
+		ADDED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml:1:11-69
 uses-permission#android.permission.ACCESS_NETWORK_STATE
-ADDED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml:4:5-79
+ADDED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml:4:5-79
 	android:name
-		ADDED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml:4:22-76
+		ADDED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml:4:22-76
 application
-ADDED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml:5:5-13:19
+ADDED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml:5:5-13:19
 activity#ai.advance.liveness.sdk.activity.LivenessActivity
-ADDED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml:7:9-11:72
+ADDED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml:7:9-11:72
 	android:screenOrientation
-		ADDED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml:10:13-49
+		ADDED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml:10:13-49
 	android:launchMode
-		ADDED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml:9:13-43
+		ADDED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml:9:13-43
 	android:theme
-		ADDED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml:11:13-69
+		ADDED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml:11:13-69
 	android:name
-		ADDED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml:8:13-54
+		ADDED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml:8:13-54
 uses-sdk
-INJECTED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml reason: use-sdk injection requested
-INJECTED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml
-INJECTED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml
-INJECTED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml
-INJECTED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml
+INJECTED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml
+INJECTED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml
+INJECTED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml
+INJECTED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml
 	android:targetSdkVersion
-		INJECTED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml
-		ADDED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml
-		INJECTED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml
+		INJECTED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml
+		ADDED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml
+		INJECTED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml
 	android:minSdkVersion
-		INJECTED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml
-		ADDED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml
-		INJECTED from E:\PROJECT\SmartLoan\liveness\src\main\AndroidManifest.xml
+		INJECTED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml
+		ADDED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml
+		INJECTED from F:\project\SmartLoan\liveness\src\main\AndroidManifest.xml

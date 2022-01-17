@@ -1,12 +1,17 @@
 package com.mmt.smartloan.view.webview;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.ActivityManager;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.http.SslError;
+import android.os.Build;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
@@ -17,6 +22,8 @@ import android.webkit.WebView;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -27,29 +34,28 @@ import com.mmt.smartloan.BR;
 import com.mmt.smartloan.BuildConfig;
 import com.mmt.smartloan.R;
 import com.mmt.smartloan.activity.LoginActivity;
+import com.mmt.smartloan.base.AddressConfig;
 import com.mmt.smartloan.base.BaseActivity;
 import com.mmt.smartloan.base.BaseApplication;
 import com.mmt.smartloan.cache.BaseCacheManager;
 import com.mmt.smartloan.databinding.ActivityByWebviewBinding;
-import com.mmt.smartloan.event.EventCommand;
 import com.mmt.smartloan.module.WebViewModule;
 import com.mmt.smartloan.repository.AppViewModelFactory;
 import com.mmt.smartloan.utils.BitmapUtils;
 import com.mmt.smartloan.utils.LogUtils;
+import com.mmt.smartloan.utils.ToastUtils;
 import com.mmt.smartloan.utils.device.DeviceUtils;
 
-import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.function.Consumer;
 
-import ai.advance.liveness.lib.GuardianLivenessDetectionSDK;
 import ai.advance.liveness.lib.LivenessResult;
 import ai.advance.liveness.sdk.activity.LivenessActivity;
-import pub.devrel.easypermissions.EasyPermissions;
+
 
 public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, WebViewModule> {
     public final int PHONE_REQUEST_PERMISSION = 8848;
@@ -58,12 +64,14 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
     public final int PICK_CONTACT = 7747;
     private JSONObject jsonObject;
     private JSONObject data;
-    private String[] permsPhone = {Manifest.permission.READ_PHONE_STATE, Manifest.permission.CAMERA};
+    private String[] permsPhone = {Manifest.permission.READ_CONTACTS};
+    private String[] permsCamera = {Manifest.permission.CAMERA};
+    public String[] allPermissions = new String[]{"android.permission.READ_PHONE_STATE", "android.permission.READ_CONTACTS", "android.permission.READ_SMS", "android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE", "android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION", "Manifest.permission.CAMERA"};
 
 
     // 网页链接
     private int mState;
-    private String mUrl, phoneName, phoneNumber;
+    private String mUrl;
     private ByWebView byWebView;
     public TimeManager timeManager;
     private boolean logout;
@@ -123,7 +131,16 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
             timeManager.onRequestPermission();
         }
         if (requestCode == PHONE_REQUEST_PERMISSION) {
-            EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+            if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)){
+                selectConnection();
+            }
+        }
+        if (requestCode == CAMERA_REQUEST_PERMISSION) {
+            if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)) {
+                Intent intent = new Intent(ByWebViewActivity.this, LivenessActivity.class);
+                startActivityForResult(intent, REQUEST_CODE_LIVENESS);
+            }
+
         }
     }
 
@@ -214,7 +231,33 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
         super.onActivityResult(requestCode, resultCode, intent);
 
         if (requestCode == PICK_CONTACT) {
-            getContacts(intent);
+            if (intent != null) {
+                Uri uri = intent.getData();
+                String[] contact = getPhoneContacts(uri);
+                if (contact != null) {
+                    JSONObject jsonObjectData = jsonObject.optJSONObject("data");
+                    JSONObject value = new JSONObject();
+                    try {
+                        value.put("isSelectContact", jsonObjectData.getBoolean("isSelectContact"));
+                        value.put("selectContactIndex", jsonObjectData.getInt("selectContactIndex"));
+                        value.put("name", contact[0]); //姓名
+                        value.put("phone", contact[1]);
+                        data.put("result", "ok");
+                        data.put("data", value);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                    byWebView.getWebView().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            byWebView.loadUrl("javascript:" + "getWebViewSelectContact" + "(" + data.toString() + ")");
+                        }
+                    });
+                }
+
+            }
         } else if (requestCode == REQUEST_CODE_LIVENESS) {
             if (LivenessResult.isSuccess()) {// 活体检测成功
                 String livenessId = LivenessResult.getLivenessId();// 本次活体id
@@ -299,6 +342,7 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
         }*/
     }
 
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (byWebView.handleKeyEvent(keyCode, event)) {
@@ -341,11 +385,12 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
         Intent intent = new Intent(mContext, ByWebViewActivity.class);
         intent.putExtra("url", url);
         intent.putExtra("state", state);
-        intent.putExtra("title", title == null ? "加载中..." : title);
+        intent.putExtra("title", title == null ? "Cargando..." : title);
         mContext.startActivity(intent);
     }
 
     class MyJavascriptInterface {
+        @SuppressLint("RestrictedApi")
         @JavascriptInterface
         public void postMessage(String jsonString) {
             LogUtils.e("h5Json>>>>>", jsonString);
@@ -357,7 +402,20 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
                 data.put("msg", "");
                 if (jsonObject.getString("action").equals("timeSDK")) {
                     timeManager.setJsonString(jsonString);
-                    EasyPermissions.requestPermissions(ByWebViewActivity.this, "需要获取电话存储权限", timeManager.TIME_REQUEST_PERMISSION, timeManager.allPermissions);
+                    if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(ByWebViewActivity.this, android.Manifest.permission.READ_PHONE_STATE)
+                            && PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(ByWebViewActivity.this, android.Manifest.permission.READ_CONTACTS)
+                            && PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(ByWebViewActivity.this, android.Manifest.permission.READ_SMS) &&
+                            PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(ByWebViewActivity.this, android.Manifest.permission.READ_EXTERNAL_STORAGE) &&
+                            PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(ByWebViewActivity.this, android.Manifest.permission.CAMERA) &&
+                            PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(ByWebViewActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION) &&
+                            PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(ByWebViewActivity.this, android.Manifest.permission.ACCESS_COARSE_LOCATION) &&
+                            PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(ByWebViewActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    ) {
+                        timeManager.onRequestPermission();
+                    } else {
+                        ActivityCompat.requestPermissions(ByWebViewActivity.this, allPermissions, timeManager.TIME_REQUEST_PERMISSION);
+                    }
+
                 } else if (jsonObject.getString("action").equals("getLoginInfo")) {
                     JSONObject value = new JSONObject();
                     data.put("result", "ok");
@@ -413,48 +471,77 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
                         }
                     });
                 } else if (jsonObject.getString("action").equals("logout")) {
+                    if (!logout) {
+                        BaseCacheManager.getUserTemp().clear();
+                        Intent intent = new Intent(ByWebViewActivity.this, LoginActivity.class);
+                        ByWebViewActivity.this.startActivity(intent);
+                        ByWebViewActivity.this.finish();
+                        logout = true;
+                    }
+                    //日志收集
+                } else if (jsonObject.getString("action").equals("logEventByLocal")) {
+                    JSONObject isUploadData = jsonObject.optJSONObject("data");
+                    boolean isUpload = isUploadData.getBoolean("isUpload");
+                    {
+                        if (isUpload) {
+                            viewModel.logEventByLocal();
+
+                        } else {
+
+                        }
+                    }
+                    //AF日志收集
+                } else if (jsonObject.getString("action").equals("logEventByAF")) {
+
+
+                } else if (jsonObject.getString("action").equals("selectContact")) {
+
+                    if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(ByWebViewActivity.this, android.Manifest.permission.READ_CONTACTS)
+                    ) {
+                        selectConnection();
+                    } else {
+                        ActivityCompat.requestPermissions(ByWebViewActivity.this, permsPhone, PHONE_REQUEST_PERMISSION);
+                    }
+                } else if (jsonObject.getString("action").equals("getAccuauthSDK")) {
+                    if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(ByWebViewActivity.this, Manifest.permission.CAMERA)
+                    ) {
+                        Intent intent = new Intent(ByWebViewActivity.this, LivenessActivity.class);
+                        startActivityForResult(intent, REQUEST_CODE_LIVENESS);
+                    } else {
+                        ActivityCompat.requestPermissions(ByWebViewActivity.this, permsCamera, CAMERA_REQUEST_PERMISSION);
+                    }
+
+
+                } else if (jsonObject.getString("action").equals("setNewToken")) {
+                    JSONObject value = new JSONObject();
+                    value.put("token", BaseCacheManager.getUserTemp().getToken());
+                    value.put("phoneNumber", BaseCacheManager.getUserTemp().getPhone());
+                    data.put("result", "ok");
+                    data.put("data", value);
+
                     byWebView.getWebView().post(new Runnable() {
                         @Override
                         public void run() {
-                            if (!logout) {
-                                BaseCacheManager.getUserTemp().clear();
-                                Intent intent = new Intent(ByWebViewActivity.this, LoginActivity.class);
-                                ByWebViewActivity.this.startActivity(intent);
-                                ByWebViewActivity.this.finish();
-                                byWebView.loadUrl("javascript:webViewLoginOut()");
-                                logout = true;
-                            }
+                            byWebView.loadUrl("javascript:" + "setNewToken" + "(" + data.toString() + ")");
                         }
                     });
-                } else if (jsonObject.getString("action").equals("selectContact")) {
-                    EasyPermissions.requestPermissions(ByWebViewActivity.this, "需要获取电话权限", PHONE_REQUEST_PERMISSION, permsPhone);
-                    if (EasyPermissions.hasPermissions(ByWebViewActivity.this, permsPhone)) {
-                        selectConnection();
-                        if (!TextUtils.isEmpty(phoneNumber)) {
-                            JSONObject jsonObjectData = jsonObject.optJSONObject("data");
-                            JSONObject value = new JSONObject();
-                            value.put("isSelectContact", jsonObjectData.getBoolean("isSelectContact"));
-                            value.put("selectContactIndex", jsonObjectData.getInt("selectContactIndex"));
-                            value.put("name", phoneName); //姓名
-                            value.put("phone", phoneNumber);
-                            data.put("result", "ok");
-                            data.put("data", value);
+                } else if (jsonObject.getString("action").equals("ToWhatsapp")) {
+                    JSONObject value = new JSONObject();
+                    value.put("phone", "this.whatsapp");
+                    data.put("result", "ok");
+                    data.put("data", value);
 
-                            byWebView.getWebView().post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    byWebView.loadUrl("javascript:" + "getWebViewSelectContact" + "(" + data.toString() + ")");
-                                }
-                            });
+                    byWebView.getWebView().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            byWebView.loadUrl("javascript:" + "webViewToWhatsapp" + "(" + data.toString() + ")");
                         }
-
-
-                    }
-                } else if (jsonObject.getString("action").equals("getAccuauthSDK")) {
-
-                    Intent intent = new Intent(ByWebViewActivity.this, LivenessActivity.class);
-                    startActivityForResult(intent, REQUEST_CODE_LIVENESS);
-
+                    });
+                } else if (jsonObject.getString("action").equals("toGooglePlayer")) {
+                    JSONObject value = new JSONObject();
+                    value.put("packageId", "item.downloadLink");
+                    data.put("result", "ok");
+                    data.put("data", value);
 
                 }
             } catch (JSONException e) {
@@ -464,53 +551,46 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
     }
 
     private void selectConnection() {
-        Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+
+        Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
         startActivityForResult(intent, PICK_CONTACT);
     }
 
-    private void getContacts(Intent data) {
-        if (data == null) {
-            return;
-        }
-
-        Uri contactData = data.getData();
-        if (contactData == null) {
-            return;
-        }
-
-
-        Uri contactUri = data.getData();
-        Cursor cursor = getContentResolver().query(contactUri, null, null, null, null);
-        if (cursor.moveToFirst()) {
-            phoneName = cursor
-                    .getString(cursor
-                            .getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-            String hasPhone = cursor
-                    .getString(cursor
-                            .getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
-            String id = cursor.getString(cursor
-                    .getColumnIndex(ContactsContract.Contacts._ID));
-            if (hasPhone.equalsIgnoreCase("1")) {
-                hasPhone = "true";
-            } else {
-                hasPhone = "false";
-            }
-            if (Boolean.parseBoolean(hasPhone)) {
-                Cursor phones = getContentResolver()
-                        .query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                                null,
-                                ContactsContract.CommonDataKinds.Phone.CONTACT_ID
-                                        + " = " + id, null, null);
-                while (phones.moveToNext()) {
-                    phoneNumber = phones
-                            .getString(phones
-                                    .getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                }
-                phones.close();
-            }
+    /**
+     * 读取联系人信息
+     *
+     * @param uri
+     */
+    private String[] getPhoneContacts(Uri uri) {
+        String[] contact = new String[2];
+        //得到ContentResolver对象
+        ContentResolver cr = getContentResolver();
+        Cursor cursor = cr.query(uri, null, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            //取得联系人姓名
+            int nameFieldColumnIndex = cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+            contact[0] = cursor.getString(nameFieldColumnIndex);
+            contact[1] = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            Log.i("contacts", contact[0]);
+            Log.i("contactsUsername", contact[1]);
             cursor.close();
+        } else {
+            return null;
         }
+        return contact;
     }
-
+/*
+    *//**
+     * 退出app
+     *//*
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void exitApp() {
+        ActivityManager manager = (ActivityManager) globalContext().getSystemService(Context.ACTIVITY_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            manager.getAppTasks().forEach(appTask -> appTask.finishAndRemoveTask());
+        } else {
+            System.exit(0);
+        }
+    }*/
 
 }

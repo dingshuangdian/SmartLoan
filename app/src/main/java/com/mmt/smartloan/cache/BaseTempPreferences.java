@@ -15,7 +15,7 @@ public class BaseTempPreferences extends BaseDiskCache {
     //当前用户登录信息
     private static final String KEY_IS_LOGIN = "KEY_IS_LOGIN";//是否登陆
     private static final String KEY_USER_ID = "KEY_USER_ID";//用户id
-    private static final String KEY_ROLE_ID = "KEY_ROLE_ID";//角色id
+    private static final String KEY_PHONE = "KEY_PHONE";//角色id
     private static final String KEY_TOKEN = "KEY_TOKEN";//token
     private static final String INSTALLREFERCE = "INSTALLREFERCE";//installreferce
     private static final String GAID = "GAID";//gaid
@@ -44,6 +44,14 @@ public class BaseTempPreferences extends BaseDiskCache {
 
     public String getIpaddress() {
         return getString(IPADDRESS, "");
+    }
+
+    public void setPhone(String phone) {
+        put(KEY_PHONE, phone);
+    }
+
+    public String getPhone() {
+        return getString(KEY_PHONE, "");
     }
 
     public String getUtmSource() {

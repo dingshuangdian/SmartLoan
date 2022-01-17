@@ -45,5 +45,9 @@ public interface BaseInterface {
 
     @Multipart
     @POST("time/upload/zip6in1")
-    Observable<BaseResult<Object>> zip6in1(@Part("md5") RequestBody md5,@Part("orderNo") RequestBody orderNo, @Part MultipartBody.Part file);
+    Observable<BaseResult<Object>> zip6in1(@Part("md5") RequestBody md5, @Part("orderNo") RequestBody orderNo, @Part MultipartBody.Part file);
+
+    @POST("log/event-log")
+    Observable<BaseResult<RegisterAndLoginBean>> postLogEvent(@Body RequestBody body);
+
 }

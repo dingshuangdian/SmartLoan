@@ -68,5 +68,10 @@ public class RepositoryModule implements BaseInterface {
         return baseInterface.zip6in1(md5, orderNo, file);
     }
 
+    @Override
+    public Observable<BaseResult<RegisterAndLoginBean>> postLogEvent(RequestBody body) {
+        return baseInterface.postLogEvent(body);
+    }
+
 
 }

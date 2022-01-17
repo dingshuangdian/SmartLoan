@@ -25,7 +25,7 @@ public class BaseApplication extends Application {
         Logger.addLogAdapter(new AndroidLogAdapter());
         DebugUtils.initDebugState();
         GuardianLivenessDetectionSDK.init(this, "54e03a28ec301bb8", "36181f76c174e848", Market.Mexico);
-        GuardianLivenessDetectionSDK.letSDKHandleCameraPermission();
+        //GuardianLivenessDetectionSDK.letSDKHandleCameraPermission();
     }
 
     public static Context getAppContext() {

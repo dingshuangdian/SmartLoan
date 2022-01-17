@@ -5,14 +5,12 @@ import android.os.Build;
 import com.google.gson.Gson;
 import com.mmt.smartloan.BuildConfig;
 import com.mmt.smartloan.cache.BaseCacheManager;
-import com.mmt.smartloan.utils.LogUtils;
 import com.mmt.smartloan.utils.device.DeviceUtils;
 import com.mmt.smartloan.utils.device.JSDCardUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import okhttp3.MediaType;
 import okhttp3.RequestBody;
 
 public class BaseParameter {
@@ -141,6 +139,24 @@ public class BaseParameter {
         map.put("utmSource", BaseCacheManager.getUserTemp().getUtmSource());
         map.put("verifyCode", verifyCode);
         map.put("verified", true);
+        return RequestBody.create(null, new Gson().toJson(map));
+
+    }
+
+    public static RequestBody postEventLog() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("packageName", BuildConfig.APPLICATION_ID);
+        map.put("afId", "afId");
+        map.put("gaid", BaseCacheManager.getUserTemp().getGaid());
+        map.put("androidId", DeviceUtils.getAndroidId(BaseApplication.getAppContext()));
+        map.put("imei", DeviceUtils.getIMEI(BaseApplication.getAppContext()));
+        map.put("phoneNumber", BaseCacheManager.getUserTemp().getPhone());
+        map.put("userId", "afId");
+        map.put("eventList", "Array[item]");
+        map.put("channelID", "afId");
+        map.put("merchantID", "afId");// 默认（“000”）
+        map.put("country", DeviceUtils.getDefaultCountry());
+        map.put("utm_source", BaseCacheManager.getUserTemp().getINSTALLREFERCE());
         return RequestBody.create(null, new Gson().toJson(map));
 
     }

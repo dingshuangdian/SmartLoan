@@ -36,15 +36,15 @@ public class RxUtil {
     }
 
     public static <T> GlobalTransformer<T> getWrapper() {
-        return getWrapper(true, new RetryConfig(), true, false, "加载中···", null);
+        return getWrapper(true, new RetryConfig(), true, false, "Cargando···", null);
     }
 
     public static <T> GlobalTransformer<T> getWrapper(final boolean errorTips) {
-        return getWrapper(errorTips, new RetryConfig(), true, false, "加载中···", null);
+        return getWrapper(errorTips, new RetryConfig(), true, false, "Cargando···", null);
     }
 
     public static <T> GlobalTransformer<T> getWrapperWithLoading(Activity activity) {
-        return getWrapper(true, new RetryConfig(), true, true, "加载中···", activity);
+        return getWrapper(true, new RetryConfig(), true, true, "Cargando···", activity);
     }
 
     public static <T> GlobalTransformer<T> getWrapperWithLoading(Activity activity, String loadingTips) {

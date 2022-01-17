@@ -1,3 +1,4 @@
+include ':update_lib'
 include ':liveness'
 include ':app'
 rootProject.name = "SmartLoan"

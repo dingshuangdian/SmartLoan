@@ -10,6 +10,7 @@ import androidx.lifecycle.LifecycleOwner;
 import com.mmt.smartloan.R;
 import com.mmt.smartloan.activity.VerifyActivity;
 import com.mmt.smartloan.base.ActivityStackManager;
+import com.mmt.smartloan.base.AddressConfig;
 import com.mmt.smartloan.base.BaseParameter;
 import com.mmt.smartloan.base.BaseViewModel;
 import com.mmt.smartloan.bean.RegisterAndLoginBean;
@@ -92,7 +93,8 @@ public class VerifyModule extends BaseViewModel<RepositoryModule> {
                     public void onResultSuccess(RegisterAndLoginBean o) {
                         BaseCacheManager.getUserTemp().setToken(o.getToken());
                         BaseCacheManager.getUserTemp().setUserId(o.getUserId());
-                        ByWebViewActivity.loadUrl(activity, "http://8.134.38.88:3003/", "", 0);
+                        BaseCacheManager.getUserTemp().setPhone(verifyActivity.mobile);
+                        ByWebViewActivity.loadUrl(activity, AddressConfig.WEB_URL, "", 0);
                         ActivityStackManager.getInstance().finishAllActivity();
                     }
                 });
@@ -107,7 +109,8 @@ public class VerifyModule extends BaseViewModel<RepositoryModule> {
                     public void onResultSuccess(RegisterAndLoginBean o) {
                         BaseCacheManager.getUserTemp().setToken(o.getToken());
                         BaseCacheManager.getUserTemp().setUserId(o.getUserId());
-                        ByWebViewActivity.loadUrl(activity, "http://8.134.38.88:3003/", "", 0);
+                        BaseCacheManager.getUserTemp().setPhone(verifyActivity.mobile);
+                        ByWebViewActivity.loadUrl(activity, AddressConfig.WEB_URL, "", 0);
                         ActivityStackManager.getInstance().finishAllActivity();
                     }
                 });
