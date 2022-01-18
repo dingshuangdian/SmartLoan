@@ -43,7 +43,7 @@ public class BaseTempPreferences extends BaseDiskCache {
     }
 
     public String getIpaddress() {
-        return getString(IPADDRESS, "");
+        return getString(IPADDRESS, "unknown");
     }
 
     public void setPhone(String phone) {

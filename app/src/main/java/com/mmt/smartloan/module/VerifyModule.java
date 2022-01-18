@@ -46,15 +46,15 @@ public class VerifyModule extends BaseViewModel<RepositoryModule> {
                 break;
             case R.id.login:
                 if (TextUtils.isEmpty(code.get())) {
-                    ToastUtils.showToast("请输入验证码");
+                    ToastUtils.showToast("por favor ingrese el código de verificación");
                     return;
                 }
                 if (code.get().length() < 6) {
-                    ToastUtils.showToast("验证码格式不符合要求");
+                    ToastUtils.showToast("El formato del código de verificación no cumple con los requisitos");
                     return;
                 }
                 if (!check.get()) {
-                    ToastUtils.showToast("请勾选服务协议");
+                    ToastUtils.showToast("Marque el acuerdo de servicio");
                     return;
                 }
 

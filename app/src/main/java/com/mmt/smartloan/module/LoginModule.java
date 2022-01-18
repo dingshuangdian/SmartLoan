@@ -15,6 +15,7 @@ import com.android.installreferrer.api.ReferrerDetails;
 import com.mmt.smartloan.R;
 import com.mmt.smartloan.activity.VerifyActivity;
 import com.mmt.smartloan.base.ActivityStackManager;
+import com.mmt.smartloan.base.AddressConfig;
 import com.mmt.smartloan.base.BaseApplication;
 import com.mmt.smartloan.base.BaseParameter;
 import com.mmt.smartloan.base.BaseViewModel;
@@ -47,15 +48,15 @@ public class LoginModule extends BaseViewModel<RepositoryModule> {
         switch (view.getId()) {
             case R.id.login:
                 if (TextUtils.isEmpty(phone.get())) {
-                    ToastUtils.showToast("请输入手机号");
+                    ToastUtils.showToast("Por favor ingrese el número de teléfono");
                     return;
                 }
                 if (phone.get().replace(String.valueOf(SEPARATOR), "").length() < 10) {
-                    ToastUtils.showToast("手机号格式不符合要求");
+                    ToastUtils.showToast("El formato del número de teléfono no cumple con los requisitos");
                     return;
                 }
                 if (!check.get()) {
-                    ToastUtils.showToast("请勾选服务协议");
+                    ToastUtils.showToast("Marque el acuerdo de servicio");
                     return;
                 }
                 model.existsByMobile(BaseParameter.existsByMobile(phone.get().replace(String.valueOf(SEPARATOR), "")))
@@ -108,7 +109,7 @@ public class LoginModule extends BaseViewModel<RepositoryModule> {
                     public void onResultSuccess(RegisterAndLoginBean o) {
                         BaseCacheManager.getUserTemp().setToken(o.getToken());
                         BaseCacheManager.getUserTemp().setUserId(o.getUserId());
-                        ByWebViewActivity.loadUrl(activity, "http://8.134.38.88:3003/", "", 0);
+                        ByWebViewActivity.loadUrl(activity, AddressConfig.WEB_URL, "", 0);
                         ActivityStackManager.getInstance().finishAllActivity();
                     }
                 });

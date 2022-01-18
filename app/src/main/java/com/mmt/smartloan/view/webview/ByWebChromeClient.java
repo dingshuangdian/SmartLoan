@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -15,28 +16,38 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import com.mmt.smartloan.R;
 import com.mmt.smartloan.base.BaseApplication;
+import com.mmt.smartloan.utils.BitmapUtil_;
 import com.mmt.smartloan.utils.BitmapUtils;
 import com.mmt.smartloan.utils.FileUtil;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
+import ai.advance.common.utils.BitmapUtil;
 import ai.advance.liveness.sdk.activity.LivenessActivity;
 
 
@@ -51,9 +62,9 @@ public class ByWebChromeClient extends WebChromeClient {
     private ByWebView mByWebView;
     private ValueCallback<Uri> mUploadMessage;
     private ValueCallback<Uri[]> mUploadMessageForAndroid5;
+    private ValueCallback<Uri[]> mUploadMessageForAndroid56;
     private static int RESULT_CODE_FILE_CHOOSER = 1;
     private static int RESULT_CODE_FILE_CHOOSER_FOR_ANDROID_5 = 2;
-    private String[] permsCamera = {Manifest.permission.CAMERA};
     private View mProgressVideo;
     private View mCustomView;
     private CustomViewCallback mCustomViewCallback;
@@ -207,16 +218,24 @@ public class ByWebChromeClient extends WebChromeClient {
     // For Android > 5.0
     @Override
     public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> uploadMsg, FileChooserParams fileChooserParams) {
-        //openFileChooserImplForAndroid5(uploadMsg);
-        Activity mActivity = this.mActivityWeakReference.get();
-        if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(mActivity, Manifest.permission.CAMERA)
-        ) {
-            takePhoto(uploadMsg);
-        } else {
-            ActivityCompat.requestPermissions(mActivity, permsCamera, 0x558);
-        }
-
+        mUploadMessageForAndroid5 = uploadMsg;
+        mUploadMessageForAndroid56 = uploadMsg;
+        takePhoto();
         return true;
+    }
+
+    @Override
+    public void onPermissionRequestCanceled(PermissionRequest request) {
+        super.onPermissionRequestCanceled(request);
+
+
+    }
+
+    public boolean permissionGranted() {
+        Activity mActivity = this.mActivityWeakReference.get();
+        return PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(mActivity, android.Manifest.permission.CAMERA)
+                && PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(mActivity, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                && PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
 
     private void openFileChooserImpl(ValueCallback<Uri> uploadMsg) {
@@ -265,22 +284,65 @@ public class ByWebChromeClient extends WebChromeClient {
         if (null == mUploadMessageForAndroid5) {
             return;
         }
+        Activity mActivity = this.mActivityWeakReference.get();
+
+
         Uri result = (intent == null || resultCode != Activity.RESULT_OK) ? null : intent.getData();
         if (result != null) {
             mUploadMessageForAndroid5.onReceiveValue(new Uri[]{Uri.fromFile(BitmapUtils.compressImage(FileUtil.getFileAbsolutePath(BaseApplication.getAppContext(), result), 1080, 1920))});
-        } else if (imageUri != null) {
-            mUploadMessageForAndroid5.onReceiveValue(new Uri[]{Uri.fromFile(BitmapUtils.compressImage(FileUtil.getFileAbsolutePath(BaseApplication.getAppContext(), imageUri), 1080, 1920))});
+        } else if (imageUri != null && checkURIResource(BaseApplication.getAppContext(), imageUri)) {
+
+            Bitmap bitmap = null;
+            try {
+                bitmap = BitmapFactory.decodeStream(mActivity.getContentResolver().
+                        openInputStream(imageUri));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            Uri uri = Uri.parse(MediaStore.Images.Media.insertImage(mActivity.getContentResolver(), BitmapUtil_.comp(bitmap), null, null));
+            mUploadMessageForAndroid5.onReceiveValue(new Uri[]{uri});
         }
         mUploadMessageForAndroid5 = null;
     }
 
-    private void takePhoto(ValueCallback<Uri[]> uploadMsg) {
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    public void onPermissionRequest(PermissionRequest request) {
+        super.onPermissionRequest(request);
+        request.grant(request.getResources());
+    }
+
+
+    private boolean checkURIResource(Context context, Uri uri) {
+        boolean bool = false;
+        if (null != uri) {
+            try {
+                InputStream inputStream = context.getContentResolver().openInputStream(uri);
+                inputStream.close();
+                bool = true;
+            } catch (Exception e) {
+                Log.w("MY_TAG", "File corresponding to the uri does not exist" + uri.toString());
+                mUploadMessageForAndroid5.onReceiveValue(null);
+            }
+        }
+        return bool;
+    }
+
+
+    public void takePhoto() {
         Activity mActivity = this.mActivityWeakReference.get();
+        if (!permissionGranted()) {
+            String[] perms = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA};
+            ActivityCompat.requestPermissions(mActivity, perms, 0x123);
+            mUploadMessageForAndroid5.onReceiveValue(null);
+            return;
+        }
         String filePath = Environment.getExternalStorageDirectory() + File.separator
                 + Environment.DIRECTORY_PICTURES + File.separator;
         String fileName = "IMG_" + DateFormat.format("yyyyMMdd_hhmmss", Calendar.getInstance(Locale.CHINA)) + ".jpg";
         imageUri = getUriForFile(mActivity, new File(filePath + fileName));
-        mUploadMessageForAndroid5 = uploadMsg;
+        mUploadMessageForAndroid5 = mUploadMessageForAndroid56;
 
 
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);

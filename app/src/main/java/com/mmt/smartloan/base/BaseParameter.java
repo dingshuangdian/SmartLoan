@@ -151,10 +151,10 @@ public class BaseParameter {
         map.put("androidId", DeviceUtils.getAndroidId(BaseApplication.getAppContext()));
         map.put("imei", DeviceUtils.getIMEI(BaseApplication.getAppContext()));
         map.put("phoneNumber", BaseCacheManager.getUserTemp().getPhone());
-        map.put("userId", "afId");
+        map.put("userId", BaseCacheManager.getUserTemp().getUserId());
         map.put("eventList", "Array[item]");
         map.put("channelID", "afId");
-        map.put("merchantID", "afId");// 默认（“000”）
+        map.put("merchantID", "000");// 默认（“000”）
         map.put("country", DeviceUtils.getDefaultCountry());
         map.put("utm_source", BaseCacheManager.getUserTemp().getINSTALLREFERCE());
         return RequestBody.create(null, new Gson().toJson(map));

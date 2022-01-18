@@ -83,7 +83,7 @@ public class BitmapUtils {
         while (baos.toByteArray().length / 1024 > 1024) { // 循环判断如果压缩后图片是否大于100kb,大于继续压缩
             baos.reset(); // 重置baos即清空baos
             bitmap.compress(Bitmap.CompressFormat.JPEG, options, baos);// 这里压缩options%，把压缩后的数据存放到baos中
-            options -= 10;// 每次都减少10
+            options -= 1;// 每次都减少10
         }
         String fileName = "IMG_CPMPRESS" + DateFormat.format("yyyyMMdd_hhmmss", Calendar.getInstance(Locale.CHINA)) + ".jpg";
         File dirFile = new File(Environment.getExternalStorageDirectory() + "/" + fileName);

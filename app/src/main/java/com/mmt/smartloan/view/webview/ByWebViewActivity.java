@@ -2,7 +2,6 @@ package com.mmt.smartloan.view.webview;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.ActivityManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -11,9 +10,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.http.SslError;
-import android.os.Build;
 import android.provider.ContactsContract;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.webkit.JavascriptInterface;
@@ -22,7 +19,6 @@ import android.webkit.WebView;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
@@ -34,7 +30,6 @@ import com.mmt.smartloan.BR;
 import com.mmt.smartloan.BuildConfig;
 import com.mmt.smartloan.R;
 import com.mmt.smartloan.activity.LoginActivity;
-import com.mmt.smartloan.base.AddressConfig;
 import com.mmt.smartloan.base.BaseActivity;
 import com.mmt.smartloan.base.BaseApplication;
 import com.mmt.smartloan.cache.BaseCacheManager;
@@ -43,15 +38,12 @@ import com.mmt.smartloan.module.WebViewModule;
 import com.mmt.smartloan.repository.AppViewModelFactory;
 import com.mmt.smartloan.utils.BitmapUtils;
 import com.mmt.smartloan.utils.LogUtils;
-import com.mmt.smartloan.utils.ToastUtils;
 import com.mmt.smartloan.utils.device.DeviceUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.List;
-import java.util.function.Consumer;
 
 import ai.advance.liveness.lib.LivenessResult;
 import ai.advance.liveness.sdk.activity.LivenessActivity;
@@ -121,6 +113,7 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
                 viewModel.up6In1(file, s, s1, b, 0);
             }
         });
+
         byWebView.getWebView().addJavascriptInterface(new MyJavascriptInterface(), "FKSDKJsFramework");
     }
 
@@ -131,7 +124,7 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
             timeManager.onRequestPermission();
         }
         if (requestCode == PHONE_REQUEST_PERMISSION) {
-            if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)){
+            if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)) {
                 selectConnection();
             }
         }
@@ -142,6 +135,13 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
             }
 
         }
+        if (requestCode == 0x123) {
+            if (byWebView.getmWebChromeClient().permissionGranted()) {
+                byWebView.getmWebChromeClient().takePhoto();
+            }
+
+        }
+
     }
 
     private OnByWebClientCallback onByWebClientCallback = new OnByWebClientCallback() {
@@ -579,8 +579,8 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
         }
         return contact;
     }
-/*
-    *//**
+    /*
+     *//**
      * 退出app
      *//*
     @RequiresApi(api = Build.VERSION_CODES.N)
