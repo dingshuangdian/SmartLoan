@@ -18,7 +18,9 @@ import android.widget.FrameLayout;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 
+import com.google.gson.Gson;
 import com.mmt.smartloan.R;
+import com.mmt.smartloan.utils.LogUtils;
 
 /**
  * 网页可以处理:

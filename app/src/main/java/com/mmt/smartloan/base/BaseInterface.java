@@ -2,6 +2,7 @@ package com.mmt.smartloan.base;
 
 import com.mmt.smartloan.bean.ExistsMobileBean;
 import com.mmt.smartloan.bean.RegisterAndLoginBean;
+import com.mmt.smartloan.bean.UpdateInfoBean;
 import com.mmt.smartloan.bean.VerifyCodeBean;
 
 import java.util.Map;
@@ -49,5 +50,9 @@ public interface BaseInterface {
 
     @POST("log/event-log")
     Observable<BaseResult<RegisterAndLoginBean>> postLogEvent(@Body RequestBody body);
+
+    @GET("app/getNewVersion")
+    Observable<BaseResult<UpdateInfoBean>> getNewVersion(@QueryMap Map<String, Object> map);
+
 
 }

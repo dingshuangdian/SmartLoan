@@ -10,9 +10,13 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
@@ -36,9 +40,11 @@ import com.mmt.smartloan.base.BaseApplication;
 import com.mmt.smartloan.utils.BitmapUtil_;
 import com.mmt.smartloan.utils.BitmapUtils;
 import com.mmt.smartloan.utils.FileUtil;
+import com.mmt.smartloan.utils.LogUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -61,8 +67,7 @@ public class ByWebChromeClient extends WebChromeClient {
     private WeakReference<Activity> mActivityWeakReference = null;
     private ByWebView mByWebView;
     private ValueCallback<Uri> mUploadMessage;
-    private ValueCallback<Uri[]> mUploadMessageForAndroid5;
-    private ValueCallback<Uri[]> mUploadMessageForAndroid56;
+    public ValueCallback<Uri[]> mUploadMessageForAndroid5;
     private static int RESULT_CODE_FILE_CHOOSER = 1;
     private static int RESULT_CODE_FILE_CHOOSER_FOR_ANDROID_5 = 2;
     private View mProgressVideo;
@@ -74,6 +79,9 @@ public class ByWebChromeClient extends WebChromeClient {
     private boolean isFixScreenLandscape = false;
     // 修复可能部分h5无故竖屏问题
     private boolean isFixScreenPortrait = false;
+    public static final int FILECHOOSER_RESULTCODE = 1314;
+    public static ValueCallback<Uri[]> valueCallbacks;
+    public static Uri myImageUri = null;
 
     ByWebChromeClient(Activity activity, ByWebView byWebView) {
         mActivityWeakReference = new WeakReference<Activity>(activity);
@@ -215,14 +223,13 @@ public class ByWebChromeClient extends WebChromeClient {
         openFileChooserImpl(uploadMsg);
     }
 
-    // For Android > 5.0
+   /* // For Android > 5.0
     @Override
     public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> uploadMsg, FileChooserParams fileChooserParams) {
         mUploadMessageForAndroid5 = uploadMsg;
-        mUploadMessageForAndroid56 = uploadMsg;
         takePhoto();
         return true;
-    }
+    }*/
 
     @Override
     public void onPermissionRequestCanceled(PermissionRequest request) {
@@ -324,6 +331,7 @@ public class ByWebChromeClient extends WebChromeClient {
             } catch (Exception e) {
                 Log.w("MY_TAG", "File corresponding to the uri does not exist" + uri.toString());
                 mUploadMessageForAndroid5.onReceiveValue(null);
+                mUploadMessageForAndroid5 = null;
             }
         }
         return bool;
@@ -335,16 +343,15 @@ public class ByWebChromeClient extends WebChromeClient {
         if (!permissionGranted()) {
             String[] perms = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA};
             ActivityCompat.requestPermissions(mActivity, perms, 0x123);
-            mUploadMessageForAndroid5.onReceiveValue(null);
             return;
         }
-        String filePath = Environment.getExternalStorageDirectory() + File.separator
-                + Environment.DIRECTORY_PICTURES + File.separator;
         String fileName = "IMG_" + DateFormat.format("yyyyMMdd_hhmmss", Calendar.getInstance(Locale.CHINA)) + ".jpg";
-        imageUri = getUriForFile(mActivity, new File(filePath + fileName));
-        mUploadMessageForAndroid5 = mUploadMessageForAndroid56;
 
-
+        File dirFile = new File(Environment.getExternalStorageDirectory() + "/" + fileName);
+        if (!dirFile.exists()) {
+            dirFile.mkdirs();
+        }
+        imageUri = getUriForFile(mActivity, new File(dirFile.getPath(), System.currentTimeMillis() + ".jpg"));
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
         mActivity.startActivityForResult(intent, RESULT_CODE_FILE_CHOOSER_FOR_ANDROID_5);
@@ -396,6 +403,114 @@ public class ByWebChromeClient extends WebChromeClient {
         } else {
             return super.getDefaultVideoPoster();
         }
+    }
+
+    //5.0+
+    @Override
+    public boolean onShowFileChooser(WebView webView,
+                                     ValueCallback<Uri[]> filePathCallback,
+                                     FileChooserParams fileChooserParams) {
+        // TODO 自动生成的方法存根
+        Activity mActivity = this.mActivityWeakReference.get();
+        valueCallbacks = filePathCallback;
+        if (!permissionGranted()) {
+            String[] perms = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA};
+            ActivityCompat.requestPermissions(mActivity, perms, 0x123);
+        } else {
+            mActivity.startActivityForResult(createCameraIntent(),
+                    this.FILECHOOSER_RESULTCODE);
+        }
+        return true;
+    }
+
+
+    /**
+     * 跳转选择界面
+     *
+     * @return
+     */
+    private Intent createDefaultOpenableIntent() {
+        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+        i.addCategory(Intent.CATEGORY_OPENABLE);
+        i.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                "image/*");
+        return i;
+
+    }
+
+    private Intent createChooserIntent(Intent... intents) {
+        Intent chooser = new Intent(Intent.ACTION_CHOOSER);
+        chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intents);
+        chooser.putExtra(Intent.EXTRA_TITLE, "选择图片");
+        return chooser;
+    }
+
+    /**
+     * 调用系统相机拍照
+     *
+     * @return
+     */
+    @SuppressWarnings("static-access")
+    public Intent createCameraIntent() {
+
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        this.myImageUri = getFileUri();
+        cameraIntent.putExtra(MediaStore.Images.Media.ORIENTATION, 0);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, myImageUri);
+        return cameraIntent;
+    }
+
+    private String getFilePath() {//图片 存储路径
+        File externalDataDir = Environment
+                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        File cameraDataDir = new File(externalDataDir.getAbsolutePath()
+                + File.separator + "smartloan");
+        cameraDataDir.mkdirs();//路径:DCIM/UPUPUP
+        String mCameraFilePath = cameraDataDir.getAbsolutePath()
+                + File.separator + "send_new_image.jpg";
+
+        return mCameraFilePath;
+    }
+
+    //Uri获取 支持Android7.0
+    private Uri getFileUri() {
+        Activity mActivity = this.mActivityWeakReference.get();
+        Uri imageUri = null;
+        String path = getFilePath();
+        File file = new File(path);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {//Android版本>=7.0
+            try {
+                imageUri = FileProvider.getUriForFile(mActivity,
+                        "com.mmt.smartloan.fileprovider", file);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        } else {
+            imageUri = Uri.fromFile(file);
+        }
+        return imageUri;
+    }
+
+    public void update(Uri[] uris) {//上传
+        Activity mActivity = this.mActivityWeakReference.get();
+        if (valueCallbacks != null
+                && uris[0] != null && checkURIResource(BaseApplication.getAppContext(), uris[0])) {
+
+            Bitmap bitmap = null;
+            try {
+                bitmap = BitmapFactory.decodeStream(mActivity.getContentResolver().
+                        openInputStream(uris[0]));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            Uri uri = Uri.parse(MediaStore.Images.Media.insertImage(mActivity.getContentResolver(), BitmapUtil_.comp(bitmap), null, null));
+            valueCallbacks.onReceiveValue(new Uri[]{uri});
+        }
+
+        valueCallbacks.onReceiveValue(uris);
+        valueCallbacks = null;
     }
 
 

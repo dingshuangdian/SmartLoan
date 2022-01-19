@@ -160,4 +160,13 @@ public class BaseParameter {
         return RequestBody.create(null, new Gson().toJson(map));
 
     }
+
+    public static Map<String, Object> getNewVersion() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("packageName", BuildConfig.APPLICATION_ID);
+        map.put("packageSource", "GooglePlay");
+        return map;
+
+    }
+
 }

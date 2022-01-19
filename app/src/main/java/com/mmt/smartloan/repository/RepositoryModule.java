@@ -6,6 +6,7 @@ import com.mmt.smartloan.base.BaseInterface;
 import com.mmt.smartloan.base.BaseResult;
 import com.mmt.smartloan.bean.ExistsMobileBean;
 import com.mmt.smartloan.bean.RegisterAndLoginBean;
+import com.mmt.smartloan.bean.UpdateInfoBean;
 import com.mmt.smartloan.bean.VerifyCodeBean;
 
 import java.util.Map;
@@ -71,6 +72,11 @@ public class RepositoryModule implements BaseInterface {
     @Override
     public Observable<BaseResult<RegisterAndLoginBean>> postLogEvent(RequestBody body) {
         return baseInterface.postLogEvent(body);
+    }
+
+    @Override
+    public Observable<BaseResult<UpdateInfoBean>> getNewVersion(Map<String, Object> map) {
+        return baseInterface.getNewVersion(map);
     }
 
 

@@ -10,13 +10,18 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.http.SslError;
+import android.os.Build;
 import android.provider.ContactsContract;
+import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -32,6 +37,7 @@ import com.mmt.smartloan.R;
 import com.mmt.smartloan.activity.LoginActivity;
 import com.mmt.smartloan.base.BaseActivity;
 import com.mmt.smartloan.base.BaseApplication;
+import com.mmt.smartloan.bean.UpdateInfoBean;
 import com.mmt.smartloan.cache.BaseCacheManager;
 import com.mmt.smartloan.databinding.ActivityByWebviewBinding;
 import com.mmt.smartloan.module.WebViewModule;
@@ -39,6 +45,7 @@ import com.mmt.smartloan.repository.AppViewModelFactory;
 import com.mmt.smartloan.utils.BitmapUtils;
 import com.mmt.smartloan.utils.LogUtils;
 import com.mmt.smartloan.utils.device.DeviceUtils;
+import com.mmt.smartloan.view.FloatWindow;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,6 +54,11 @@ import java.io.File;
 
 import ai.advance.liveness.lib.LivenessResult;
 import ai.advance.liveness.sdk.activity.LivenessActivity;
+import constant.UiType;
+import listener.OnBtnClickListener;
+import model.UiConfig;
+import model.UpdateConfig;
+import update.UpdateAppUtils;
 
 
 public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, WebViewModule> {
@@ -56,6 +68,7 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
     public final int PICK_CONTACT = 7747;
     private JSONObject jsonObject;
     private JSONObject data;
+    private FloatWindow floatWindow;
     private String[] permsPhone = {Manifest.permission.READ_CONTACTS};
     private String[] permsCamera = {Manifest.permission.CAMERA};
     public String[] allPermissions = new String[]{"android.permission.READ_PHONE_STATE", "android.permission.READ_CONTACTS", "android.permission.READ_SMS", "android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE", "android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION", "Manifest.permission.CAMERA"};
@@ -87,6 +100,23 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
     @Override
     public void initView() {
         ImmersionBar.with(this).statusBarColor("#5D48BD").fitsSystemWindows(true).init();
+        /*// 权限判断
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (!Settings.canDrawOverlays(getApplicationContext())) {
+                // 启动Activity让用户授权
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
+                startActivityForResult(intent, 10);
+            } else {
+                // 执行6.0以上绘制代码
+                initFloatWindow();
+            }
+        } else {
+            // 执行6.0以下绘制代码
+            initFloatWindow();
+        }*/
+
+        UpdateAppUtils.init(BaseApplication.getAppContext());
+        viewModel.getNewVersion();
         getIntentData();
         initTitle();
         getDataFromBrowser(getIntent());
@@ -96,6 +126,11 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
     private void getIntentData() {
         mUrl = getIntent().getStringExtra("url");
         mState = getIntent().getIntExtra("state", 0);
+    }
+
+    private void initFloatWindow() {
+        floatWindow = new FloatWindow(getApplicationContext());
+        //floatWindow.showFloatWindow();
     }
 
 
@@ -137,7 +172,12 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
         }
         if (requestCode == 0x123) {
             if (byWebView.getmWebChromeClient().permissionGranted()) {
-                byWebView.getmWebChromeClient().takePhoto();
+                startActivityForResult(byWebView.getmWebChromeClient().createCameraIntent(),
+                        byWebView.getmWebChromeClient().FILECHOOSER_RESULTCODE);
+            } else {
+                if (byWebView.getmWebChromeClient().valueCallbacks != null) {
+                    byWebView.getmWebChromeClient().valueCallbacks.onReceiveValue(null);
+                }
             }
 
         }
@@ -291,8 +331,11 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
 
                 }
             });
-        } else {
-            byWebView.handleFileChooser(requestCode, resultCode, intent);
+        } else if (requestCode == byWebView.getmWebChromeClient().FILECHOOSER_RESULTCODE) {
+            Uri[] uris = new Uri[1];
+            uris[0] = byWebView.getmWebChromeClient().myImageUri;
+            byWebView.getmWebChromeClient().update(uris);
+            // byWebView.handleFileChooser(requestCode, resultCode, intent);
         }
 
     }
@@ -548,6 +591,7 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
                 e.printStackTrace();
             }
         }
+
     }
 
     private void selectConnection() {
@@ -580,7 +624,9 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
         return contact;
     }
     /*
-     *//**
+     */
+
+    /**
      * 退出app
      *//*
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -592,5 +638,81 @@ public class ByWebViewActivity extends BaseActivity<ActivityByWebviewBinding, We
             System.exit(0);
         }
     }*/
+    public void updateApp(UpdateInfoBean data) {
+        if (data != null) {
+            if (Integer.parseInt(data.getVersionCode()) > BuildConfig.VERSION_CODE) {
+                UpdateConfig updateConfig = new UpdateConfig();
+                updateConfig.setCheckWifi(false);
+                updateConfig.setDebug(false);
+                updateConfig.setForce(data.isForcedUpdate());
+                updateConfig.setShowNotification(false);
+                updateConfig.setAlwaysShow(true);
+                UiConfig uiConfig = new UiConfig();
+                uiConfig.setUiType(UiType.CUSTOM);
+                uiConfig.setCustomLayoutId(R.layout.view_update_dialog);
+                UpdateAppUtils
+                        .getInstance()
+                        .apkUrl(data.getLink())
+                        .updateTitle("Nueva versión disponible")
+                        .updateContent("Por favor, actualice a la última versión")
+                        .uiConfig(uiConfig)
+                        .updateConfig(updateConfig)
+                        .setUpdateBtnClickListener(new OnBtnClickListener() {
+                            @Override
+                            public boolean onClick() {
+                                transferToGooglePlay(data.getLink());
+                                return true;
+                            }
+                        })
+                        .update();
+            }
+
+        }
+    }
+
+    /**
+     * 跳转到谷歌市场
+     */
+    public void transferToGooglePlay(String packageId) {
+
+        if (!TextUtils.isEmpty(packageId)) {
+            if (packageId.startsWith("http")) {
+                Intent intentGp = new Intent(Intent.ACTION_VIEW);
+                intentGp.setData(Uri.parse(packageId));
+                startActivity(intentGp);
+                return;
+            }
+        }
+
+        if (TextUtils.isEmpty(packageId)) {
+            packageId = BuildConfig.APPLICATION_ID;
+        }
+        try {
+            Uri uri = Uri.parse("market://details?id=" + packageId);
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            intent.setPackage("com.android.vending");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            context.startActivity(intent);
+            //存在手机里没安装应用市场的情况，跳转会包异常，做一个接收判断
+            if (intent.resolveActivity(getPackageManager()) != null) { //可以接收
+                startActivity(intent);
+            } else { //没有应用市场，我们通过浏览器跳转到Google Play
+                Intent intent2 = new Intent(Intent.ACTION_VIEW);
+                intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent2.setData(Uri.parse("https://play.google.com/store/apps/details?id=" + packageId));
+                //这里存在一个极端情况就是有些用户浏览器也没有，再判断一次
+                if (intent2.resolveActivity(getPackageManager()) != null) { //有浏览器
+                    startActivity(intent2);
+                } else { //
+                    Toast.makeText(ByWebViewActivity.this, "No tienes instalado un mercado de aplicaciones, ¡ni siquiera un navegador!", Toast.LENGTH_SHORT).show();
+
+                }
+            }
+        } catch (Exception e) {
+            Toast.makeText(ByWebViewActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+
+        }
+    }
+
 
 }

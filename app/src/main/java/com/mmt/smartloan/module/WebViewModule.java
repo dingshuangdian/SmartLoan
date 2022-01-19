@@ -9,6 +9,7 @@ import com.mmt.smartloan.base.AddressConfig;
 import com.mmt.smartloan.base.BaseParameter;
 import com.mmt.smartloan.base.BaseViewModel;
 import com.mmt.smartloan.bean.RegisterAndLoginBean;
+import com.mmt.smartloan.bean.UpdateInfoBean;
 import com.mmt.smartloan.cache.BaseCacheManager;
 import com.mmt.smartloan.repository.RepositoryModule;
 import com.mmt.smartloan.rxjava.exception.core.RxLifecycleUtils;
@@ -74,12 +75,25 @@ public class WebViewModule extends BaseViewModel<RepositoryModule> {
                     }
                 });
     }
+
     public void logEventByLocal() {
         model.postLogEvent(BaseParameter.postEventLog())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new MyObserver<RegisterAndLoginBean>() {
                     @Override
                     public void onResultSuccess(RegisterAndLoginBean o) {
+                    }
+                });
+    }
+
+    public void getNewVersion() {
+        model.getNewVersion(BaseParameter.getNewVersion())
+                .compose(RxUtil.getWrapper())
+                .as(RxLifecycleUtils.bindLifecycle((LifecycleOwner) activity))
+                .subscribe(new MyObserver<UpdateInfoBean>() {
+                    @Override
+                    public void onResultSuccess(UpdateInfoBean o) {
+                        webViewActivity.updateApp(o);
                     }
                 });
     }
